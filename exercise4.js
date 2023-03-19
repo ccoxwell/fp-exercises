@@ -1,33 +1,4 @@
-/*
-
-bands = [{'name': 'sunset rubdown', 'country': 'UK', 'active': False},
-         {'name': 'women', 'country': 'Germany', 'active': False},
-         {'name': 'a silver mt. zion', 'country': 'Spain', 'active': True}]
-
-def format_bands(bands):
-    for band in bands:
-        band['country'] = 'Canada'
-        band['name'] = band['name'].replace('.', '')
-        band['name'] = band['name'].title()
-
-format_bands(bands)
-
-print bands
-# => [{'name': 'Sunset Rubdown', 'active': False, 'country': 'Canada'},
-#     {'name': 'Women', 'active': False, 'country': 'Canada' },
-#     {'name': 'A Silver Mt Zion', 'active': True, 'country': 'Canada'}]
-
-print pipeline_each(bands, [set_canada_as_country,
-                            strip_punctuation_from_name,
-                            capitalize_names])
-
-*/
-
-const bands = [
-	{ name: 'sunset rubdown', country: 'UK', active: false },
-	{ name: 'women', country: 'Germany', active: false },
-	{ name: 'a silver mt. zion', country: 'Spain', active: true },
-]
+const bands = init()
 
 console.log(
 	pipelineEach(bands, [
@@ -38,42 +9,39 @@ console.log(
 )
 
 function pipelineEach(data, functionsArray) {
-	return functionsArray.reduce((accumulator, currentFunction) => {
-		accumulator = currentFunction(accumulator)
-		return accumulator
-	}, data)
+	return functionsArray.reduce(
+		(accumulator, currentFunction) =>
+			accumulator.map((item) => currentFunction(item)),
+		data
+	)
 }
 
-function setCanadaAsCountry(array) {
-	return array.map((item) => {
-		item.country = 'Canada'
-		return item
-	})
+function setCanadaAsCountry(band) {
+	return { ...band, country: 'Canada' }
 }
 
-function stripPunctuationFromName(array) {
-	return array.map((item) => {
-		item.name.replace('.', '')
-		return item
-	})
+function stripPunctuationFromName(band) {
+	const { name } = band
+	return { ...band, name: name.replace('.', '') }
 }
 
-function capitalizeNames(array) {
-	return array.map((item) => {
-		item.name = titleCaseName(item.name)
-		return item
-	})
+function capitalizeNames(band) {
+	const { name } = band
+	return { ...band, name: name.toTitleCase() }
 }
 
-function titleCaseName(string) {
-	const words = string.split(' ')
-	const titleCasedString = words.reduce((accumulator, currentWord) => {
-		const [first, ...rest] = currentWord
-		const firstCapitalized = first.toUpperCase()
-		const restLowerCase = rest.join('')
-		return accumulator
-			.concat(' ', `${firstCapitalized}${restLowerCase}`)
-			.trimStart()
-	}, '')
-	return titleCasedString
+function init() {
+	String.prototype.toTitleCase = function () {
+		return this.split(' ')
+			.map((word) => {
+				const [first, ...rest] = word
+				return `${first.toUpperCase()}${rest.join('')}`
+			})
+			.join(' ')
+	}
+	return [
+		{ name: 'sunset rubdown', country: 'UK', active: false },
+		{ name: 'women', country: 'Germany', active: false },
+		{ name: 'a silver mt. zion', country: 'Spain', active: true },
+	]
 }
