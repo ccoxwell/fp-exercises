@@ -1,4 +1,4 @@
-const bands = init()
+const { bands, utils } = init()
 
 console.log(
 	pipelineEach(bands, [
@@ -17,17 +17,15 @@ function pipelineEach(data, functionsArray) {
 }
 
 function setCanadaAsCountry(band) {
-	return { ...band, country: 'Canada' }
+	return utils.assignPropertyValue(band, 'country', 'Canada')
 }
 
 function stripPunctuationFromName(band) {
-	const { name } = band
-	return { ...band, name: name.replace('.', '') }
+	return utils.assignPropertyValue(band, 'name', band.name.replace('.', ''))
 }
 
 function capitalizeNames(band) {
-	const { name } = band
-	return { ...band, name: name.toTitleCase() }
+	return utils.assignPropertyValue(band, 'name', band.name.toTitleCase())
 }
 
 function init() {
@@ -39,9 +37,18 @@ function init() {
 			})
 			.join(' ')
 	}
-	return [
-		{ name: 'sunset rubdown', country: 'UK', active: false },
-		{ name: 'women', country: 'Germany', active: false },
-		{ name: 'a silver mt. zion', country: 'Spain', active: true },
-	]
+	return {
+		bands: [
+			{ name: 'sunset rubdown', country: 'UK', active: false },
+			{ name: 'women', country: 'Germany', active: false },
+			{ name: 'a silver mt. zion', country: 'Spain', active: true },
+		],
+		utils: {
+			assignPropertyValue: (_object, propertyName, newValue) => {
+				const object = { ..._object }
+				object[propertyName] = newValue
+				return object
+			},
+		},
+	}
 }
